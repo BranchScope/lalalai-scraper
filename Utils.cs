@@ -52,9 +52,9 @@ public static class Worker
         SetDefaultWebFirstAssertionTimeout(40000);
         var locator = page.Locator("h2[class='xxlarge-font font-color--primary promo__title']").First;
         await Assertions.Expect(locator).ToHaveTextAsync("Your previews are ready!");
-        Console.WriteLine("Your previews are ready!");
-        var buttons = page.GetByTitle("Play").First;
-        Console.WriteLine(await buttons.GetAttributeAsync("class"));
-
+        var vocalsUrl = await page.WaitForResponseAsync(r => r.Url.Contains("d.lalal.ai") && r.Url.Contains("/vocals"));
+        var instrumentalUrl = await page.WaitForResponseAsync(r => r.Url.Contains("d.lalal.ai") && r.Url.Contains("/no_vocals"));
+        Console.WriteLine(vocalsUrl.Url);
+        Console.WriteLine(instrumentalUrl.Url);
     }
 }
