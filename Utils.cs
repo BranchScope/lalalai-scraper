@@ -35,13 +35,10 @@ public static class Worker
 
         method.Invoke(null, new object[] { timeout });
     }
-    public static async Task Beast()
+    public static async Task<Dictionary<string, string>> Beast()
     {
         using var playwright = await Playwright.CreateAsync();
-        await using var browser = await playwright.Chromium.LaunchAsync(new()
-        {
-            Headless = false
-        });
+        await using var browser = await playwright.Chromium.LaunchAsync();
         var page = await browser.NewPageAsync();
         await page.GotoAsync(Resource);
         var fileChooser = await page.RunAndWaitForFileChooserAsync(async () =>
@@ -49,12 +46,10 @@ public static class Worker
             await page.GetByText("Select Files").First.ClickAsync();
         });
         await fileChooser.SetFilesAsync("test.mp3");
-        SetDefaultWebFirstAssertionTimeout(40000);
         var locator = page.Locator("h2[class='xxlarge-font font-color--primary promo__title']").First;
         await Assertions.Expect(locator).ToHaveTextAsync("Your previews are ready!");
         var vocalsUrl = await page.WaitForResponseAsync(r => r.Url.Contains("d.lalal.ai") && r.Url.Contains("/vocals"));
         var instrumentalUrl = await page.WaitForResponseAsync(r => r.Url.Contains("d.lalal.ai") && r.Url.Contains("/no_vocals"));
-        Console.WriteLine(vocalsUrl.Url);
-        Console.WriteLine(instrumentalUrl.Url);
+        return new Dictionary<string, string>() { { "vocals", vocalsUrl.Url }, { "instrumental", instrumentalUrl.Url } };
     }
 }
